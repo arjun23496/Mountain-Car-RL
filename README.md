@@ -34,5 +34,7 @@ The mountain car experiment in RL
 - The difference is that SARSA has a higher gradient along the diagonal.
 - The ranges learned by the algos are different. Range more for SARSA.
 - State Values getting more than 0. !! wrong implementation? :(
+- Looking at the plots of change in state values over time, seems that qlearning is one step ahead of sarsa always.
+- changes to qlearning faster.
 
 TODO : visualize value function change over number of episodes.

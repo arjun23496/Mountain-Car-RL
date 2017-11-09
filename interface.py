@@ -53,6 +53,8 @@ class AEInterface:
 
 			tic = time.time()
 
+			w_history = []
+
 			environment = Environment()
 			agent = Agent(environment, mode=mode, h_params=agent_hparams)
 
@@ -72,6 +74,9 @@ class AEInterface:
 				self.time = 0
 
 				while True:
+
+					if episode == 0:
+						w_history.append(agent.w.copy())
 
 					agent.run_agent()
 
@@ -98,7 +103,7 @@ class AEInterface:
 				print "saving"
 
 				with open(os.path.join(os.path.dirname(__file__),filepath+'/learned_weights.pkl'), 'w') as fp:
-					np.save(fp, agent.w)
+					np.save(fp, w_history)
 
 				self.system_stats['time_taken'] += time_taken
 

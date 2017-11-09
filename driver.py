@@ -1,8 +1,8 @@
 from interface import AEInterface
 
-mode = "s"
+mode = "q"
 
-model = AEInterface(number_of_trials=1)
+model = AEInterface(number_of_trials=1, number_of_episodes=1)
 
 if mode=="s":
 	model.execute(True, reload=False, persist=True, mode=0, filepath="logs")

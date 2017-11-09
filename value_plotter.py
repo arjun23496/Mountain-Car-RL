@@ -9,81 +9,88 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-mode = "q"
+mode = "s"
 
 number_of_values = 100
 show_every = 5
+episodes = range(0, 100, 1)
 
-env_obj = Environment()
-agent_obj = Agent(env_obj)
-fourier = FourierExpansion(1)
+for episode in episodes:
 
-if mode=="q":
-	directory = "logsq"
-elif mode == "s":
-	directory = "logs"
+	env_obj = Environment()
+	agent_obj = Agent(env_obj)
+	fourier = FourierExpansion(1)
 
-with open(directory+'/learned_weights.pkl', 'r') as fp:
-	agent_obj.w = np.load(fp)
+	if mode=="q":
+		directory = "logsq"
+	elif mode == "s":
+		directory = "logs"
 
-print agent_obj.w
+	with open(directory+'/learned_weights.pkl', 'r') as fp:
+		agent_obj.w = np.load(fp)
 
-x_values = np.arange(env_obj.position_lbound, env_obj.position_ubound, (env_obj.position_ubound-env_obj.position_lbound)/number_of_values)
-v_values = np.arange(env_obj.velocity_lbound, env_obj.velocity_ubound, (env_obj.velocity_ubound-env_obj.velocity_lbound)/number_of_values)
+	agent_obj.w = agent_obj.w[episode]
 
-state_values = np.zeros([number_of_values, number_of_values])
+	print agent_obj.w
 
-x_values = np.sort(x_values)
-v_values = np.sort(v_values)
+	x_values = np.arange(env_obj.position_lbound, env_obj.position_ubound, (env_obj.position_ubound-env_obj.position_lbound)/number_of_values)
+	v_values = np.arange(env_obj.velocity_lbound, env_obj.velocity_ubound, (env_obj.velocity_ubound-env_obj.velocity_lbound)/number_of_values)
 
-for x in range(len(x_values)):
-	for v in range(len(v_values)):
-		state = [ x_values[x], v_values[v] ]
+	state_values = np.zeros([number_of_values, number_of_values])
 
-		state = agent_obj.scale_state(state)
+	x_values = np.sort(x_values)
+	v_values = np.sort(v_values)
 
-		state = fourier.compute(state)
+	for x in range(len(x_values)):
+		for v in range(len(v_values)):
+			state = [ x_values[x], v_values[v] ]
 
-		value = 0
-		q_vals = []
-		greedy_action = []
-		best_q = None
+			state = agent_obj.scale_state(state)
 
-		for y in range(len(env_obj.action_list)):
-			qval = agent_obj.q_value(state, y)
-			q_vals.append(qval)
+			state = fourier.compute(state)
 
-			if best_q == None or best_q < qval:
-				best_q = qval
-				greedy_action = [ y ]
-			elif best_q == qval:
-				greedy_action.append(y)
+			value = 0
+			q_vals = []
+			greedy_action = []
+			best_q = None
 
-		qvals = np.array(q_vals)
+			for y in range(len(env_obj.action_list)):
+				qval = agent_obj.q_value(state, y)
+				q_vals.append(qval)
 
-		prob_dist = (agent_obj.hyperparameters['epsilon']/len(env_obj.action_list))*np.ones(len(env_obj.action_list))
-		prob_dist[greedy_action] = prob_dist[greedy_action] + (1 - (agent_obj.hyperparameters['epsilon']/len(env_obj.action_list)))/len(greedy_action)
+				if best_q == None or best_q < qval:
+					best_q = qval
+					greedy_action = [ y ]
+				elif best_q == qval:
+					greedy_action.append(y)
 
-		value = np.sum(prob_dist*q_vals)
+			qvals = np.array(q_vals)
 
-		state_values[x, v] = value
+			prob_dist = (agent_obj.hyperparameters['epsilon']/len(env_obj.action_list))*np.ones(len(env_obj.action_list))
+			prob_dist[greedy_action] = prob_dist[greedy_action] + (1 - (agent_obj.hyperparameters['epsilon']/len(env_obj.action_list)))/len(greedy_action)
 
-		if x == len(x_values)-1 and v == len(v_values)-1:
-			print x_values[x],", ",v_values[v],", ",state_values[x,v]
-			# break
-	# break
+			value = np.sum(prob_dist*q_vals)
 
-# print state_values
+			state_values[x, v] = value
 
-# df = pd.DataFrame({ 'position': x_values, 'velocity': v_values, 'value': state_values })
+			# if x == len(x_values)-1 and v == len(v_values)-1:
+			# 	print x_values[x],", ",v_values[v],", ",state_values[x,v]
+				# break
+		# break
 
-# print df[:10]
+	# print state_values
 
-# indices = np.arange(0, len(x_values), show_every)
+	# df = pd.DataFrame({ 'position': x_values, 'velocity': v_values, 'value': state_values })
 
-# x_values = x_values[indices]
-# v_values = v_values[indices]
+	# print df[:10]
 
-sns.heatmap(state_values, xticklabels=v_values, yticklabels=x_values)
+	# indices = np.arange(0, len(x_values), show_every)
 
-plt.show()
+	# x_values = x_values[indices]
+	# v_values = v_values[indices]
+
+	sns.heatmap(state_values, xticklabels=v_values, yticklabels=x_values)
+
+	plt.savefig('value_history_'+mode+"/"+str(episode)+".png")
+
+	plt.clf()
