@@ -15,7 +15,7 @@ The mountain car experiment in RL
 
 ### Qlearning
 
-- state values range from about -240 to 240!! Interesting note
+- state values range from about -110 to 80!! Interesting note
 - very low value region along diagonal - Slight positive gradient in direction of positive velocity.
 - overall the plot makes sense.
 - But state values coming greater than zero.!!!
