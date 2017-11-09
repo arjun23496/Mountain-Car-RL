@@ -25,7 +25,7 @@ class AEInterface:
 		self.hyperparameters = {
 			"alpha": 0.02,
 			"gamma": 1,
-			"epsilon": 0.3,
+			"epsilon": 0.25,
 			"be_degree": 1
 		}
 

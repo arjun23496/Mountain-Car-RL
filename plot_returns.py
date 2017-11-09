@@ -8,7 +8,7 @@ import seaborn as sns
 return_history = None
 
 q = 3
-mode = "s"
+mode = "q"
 
 if q == 3:
 	if mode == "s":

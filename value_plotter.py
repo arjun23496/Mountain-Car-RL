@@ -1,3 +1,5 @@
+from __future__ import division
+
 from environment import Environment
 from agent import Agent
 from agent import FourierExpansion
@@ -26,8 +28,9 @@ with open(directory+'/learned_weights.pkl', 'r') as fp:
 
 print agent_obj.w
 
-x_values = (env_obj.position_ubound-env_obj.position_lbound)*np.random.sample(number_of_values) + env_obj.position_lbound
-v_values = (env_obj.velocity_ubound-env_obj.velocity_lbound)*np.random.sample(number_of_values) + env_obj.velocity_lbound
+x_values = np.arange(env_obj.position_lbound, env_obj.position_ubound, (env_obj.position_ubound-env_obj.position_lbound)/number_of_values)
+v_values = np.arange(env_obj.velocity_lbound, env_obj.velocity_ubound, (env_obj.velocity_ubound-env_obj.velocity_lbound)/number_of_values)
+
 state_values = np.zeros([number_of_values, number_of_values])
 
 x_values = np.sort(x_values)
@@ -42,11 +45,33 @@ for x in range(len(x_values)):
 		state = fourier.compute(state)
 
 		value = 0
+		q_vals = []
+		greedy_action = []
+		best_q = None
 
 		for y in range(len(env_obj.action_list)):
-			value += agent_obj.q_value(state, y)
+			qval = agent_obj.q_value(state, y)
+			q_vals.append(qval)
+
+			if best_q == None or best_q < qval:
+				best_q = qval
+				greedy_action = [ y ]
+			elif best_q == qval:
+				greedy_action.append(y)
+
+		qvals = np.array(q_vals)
+
+		prob_dist = (agent_obj.hyperparameters['epsilon']/len(env_obj.action_list))*np.ones(len(env_obj.action_list))
+		prob_dist[greedy_action] = prob_dist[greedy_action] + (1 - (agent_obj.hyperparameters['epsilon']/len(env_obj.action_list)))/len(greedy_action)
+
+		value = np.sum(prob_dist*q_vals)
 
 		state_values[x, v] = value
+
+		if x == len(x_values)-1 and v == len(v_values)-1:
+			print x_values[x],", ",v_values[v],", ",state_values[x,v]
+			# break
+	# break
 
 # print state_values
 
