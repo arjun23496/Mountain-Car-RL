@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-mode = "s"
+mode = "q"
 
 number_of_values = 100
 show_every = 5
