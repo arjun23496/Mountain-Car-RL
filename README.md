@@ -2,5 +2,5 @@
 The mountain car experiment in RL
 
 - Algorithm implementations
-[x] qlearning
-[x] sarsa
+* [x] qlearning
+* [x] sarsa
